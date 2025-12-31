@@ -1,0 +1,66 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f2f2f2;
+}
+
+.header {
+  background: #2d6cdf;
+  color: white;
+  padding: 15px;
+  text-align: center;
+}
+
+.cards {
+  display: flex;
+  justify-content: space-around;
+  margin: 15px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  width: 45%;
+  text-align: center;
+}
+
+.clickable { cursor: pointer; }
+
+.fare-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 15px;
+}
+
+button {
+  padding: 18px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: 2px solid #2d6cdf;
+  background: white;
+  color: #2d6cdf;
+}
+
+button:hover {
+  background: #2d6cdf;
+  color: white;
+}
+
+.center {
+  text-align: center;
+  margin: 10px;
+}
+
+table {
+  width: 90%;
+  margin: auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 2px solid black;
+  padding: 10px;
+  text-align: center;
+}
