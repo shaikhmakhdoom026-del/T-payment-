@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ETM Ticketing System - NFC Based</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-bus"></i>
+                <h1>ETM TICKETING SYSTEM</h1>
+            </div>
+            <p class="tagline">Select fare → Tap NFC card → Get ticket</p>
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-dot"></span>
+                <span id="statusText">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Left Column - Statistics -->
+            <div class="stats-panel">
+                <div class="stats-card" onclick="showTodayDetails()">
+                    <div class="card-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>TODAY'S EARNINGS</h3>
+                        <div class="amount" id="todayAmount">₹0</div>
+                        <div class="details" id="todayTx">0 transactions</div>
+                    </div>
+                </div>
+
+                <div class="stats-card clickable" onclick="showWeekModal()">
+                    <div class="card-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>WEEKLY EARNING</h3>
+                        <div class="amount" id="weekAmount">₹0</div>
+                        <div class="details" id="weekTx">0 total</div>
+                    </div>
+                </div>
+
+                <div class="nfc-status-card">
+                    <div class="card-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>NFC READER</h3>
+                        <div class="nfc-status" id="nfcStatusText">Ready</div>
+                        <div class="card-info">
+                            <i class="fas fa-id-card"></i>
+                            <span id="lastCardUID">No card detected</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Controls -->
+            <div class="control-panel">
+                <div class="fare-section">
+                    <h2><i class="fas fa-tag"></i> SELECT FARE AMOUNT</h2>
+                    <div class="fare-grid">
+                        <button class="fare-btn" onclick="selectFare(10)">₹10</button>
+                        <button class="fare-btn" onclick="selectFare(15)">₹15</button>
+                        <button class="fare-btn" onclick="selectFare(20)">₹20</button>
+                        <button class="fare-btn" onclick="selectFare(25)">₹25</button>
+                        <button class="fare-btn" onclick="selectFare(30)">₹30</button>
+                        <button class="fare-btn" onclick="selectFare(40)">₹40</button>
+                        <button class="fare-btn" onclick="selectFare(45)">₹45</button>
+                        <button class="fare-btn" onclick="selectFare(50)">₹50</button>
+                        <button class="fare-btn" onclick="selectFare(60)">₹60</button>
+                    </div>
+                    <div class="selected-display" id="selectedFareDisplay">
+                        <i class="fas fa-check-circle"></i>
+                        <span>No fare selected</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="connectESP32()" id="connectBtn">
+                        <i class="fas fa-plug"></i> Connect ESP32
+                    </button>
+                    <button class="btn btn-secondary" onclick="showAdminPanel()">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </button>
+                    <button class="btn btn-danger" onclick="cancelTransaction()" id="cancelBtn" disabled>
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+
+                <div class="transaction-log">
+                    <h3><i class="fas fa-history"></i> TRANSACTION LOG</h3>
+                    <div class="log-container" id="transactionLog">
+                        <div class="log-entry">
+                            <span class="time">[00:00:00]</span>
+                            <span class="message">System initialized</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="github-link">
+                    <a href="https://github.com/yourusername/ETM-System" target="_blank">
+                        <i class="fab fa-github"></i> View on GitHub
+                    </a>
+                </div>
+                <div class="version">v1.0.0 | ETM NFC System</div>
+                <div class="system-time" id="systemTime">--:--:--</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals -->
+    <div id="weekModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-calendar-alt"></i> Weekly Earnings</h3>
+                <button class="close-btn" onclick="closeWeekModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="week-table">
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Amount</th>
+                            <th>Transactions</th>
+                            <th>Avg. Fare</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weekDetails">
+                        <!-- Filled by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-shield"></i> Admin Panel</h3>
+                <button class="close-btn" onclick="closeAdminModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-grid">
+                    <button class="admin-btn" onclick="resetToday()">
+                        <i class="fas fa-redo"></i> Reset Today
+                    </button>
+                    <button class="admin-btn" onclick="exportData()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <button class="admin-btn" onclick="showKeys()">
+                        <i class="fas fa-key"></i> View Keys
+                    </button>
+                    <button class="admin-btn" onclick="clearLogs()">
+                        <i class="fas fa-trash"></i> Clear Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="keysModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> NFC Security Keys</h3>
+                <button class="close-btn" onclick="closeKeysModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="key-section">
+                    <h4>Key A</h4>
+                    <div class="key-display">C7 4E A9 13 5D F2</div>
+                </div>
+                <div class="key-section">
+                    <h4>Key B</h4>
+                    <div class="key-display">8B F1 26 D4 9C 70</div>
+                </div>
+                <div class="key-section">
+                    <h4>Master Key</h4>
+                    <div class="key-display">E3 91 6A 5F C8 2D</div>
+                </div>
+                <div class="magic-bytes">
+                    <h4>Magic Bytes</h4>
+                    <div class="magic-display">ETM1attachedthis</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
